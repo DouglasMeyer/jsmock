@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>script.aculo.us Unit test file</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <script src="lib/prototype.js" type="text/javascript"></script>
+  <script src="lib/unittest.js" type="text/javascript"></script>
+  <script src="../src/mock.js" type="text/javascript"></script>
+  <link rel="stylesheet" href="lib/test.css" type="text/css" />
+  <style>
+  </style>
+</head>
+<body>
+<h1>mock.js Unit test file</h1>
+<p>
+  Test JSMock
+</p>
+
+<!-- Log output -->
+<div id="testlog"> </div>
+
+<!-- HTML Fixtures -->
+
+<!-- Tests follow -->
+<script type="text/javascript" language="javascript" charset="utf-8">
+// <![CDATA[
+
+  new Test.Unit.Runner({
+
+    setup: function() { with(this) {
+      initialRandom = Math.random;
+    }},
+
+    teardown: function() { with(this) {
+      Math.random = initialRandom;
+    }},
+
+    testObjectMock_MakesTheNextCallReturnWhatYouPassed: function() { with(this) {
+      Math.mock('random', 3);
+
+      assertEqual(3, Math.random());
+    }},
+
+    testObjectMock_RemovesMockAfterItIsCalled: function(){with(this){
+      Math.mock('random', 3);
+
+      Math.random();
+      assertEqual(initialRandom, Math.random);
+    }},
+
+    testObjectMock_GetsExecutedLikeAStack: function(){with(this){
+      Math.mock('random', 3);
+      Math.mock('random', 4);
+
+      assertEqual(4, Math.random());
+      assertEqual(3, Math.random());
+    }},
+
+    testObjectMockWithMultipleArguments_GetsAddedLikeAStack: function(){with(this){
+      Math.mock('random', 3, 4);
+
+      assertEqual(4, Math.random());
+      assertEqual(3, Math.random());
+    }},
+
+    testObjectMocks_CanBeChained: function(){with(this){
+      var initialRound = Math.round;
+
+      Math.mock('random', 3).mock('round', 4);
+
+      assertEqual(3, Math.random());
+      assertEqual(4, Math.round());
+      assertEqual(initialRandom, Math.random);
+      assertEqual(initialRound, Math.round);
+    }},
+
+    testObjectMock_WillCallFunctionIfFunctionPassed: function(){with(this){
+      Math.mock('random', function(arg){ return(arg+1); });
+
+      assertEqual(101, Math.random(100));
+    }}
+
+  }, "testlog");
+// ]]>
+</script>
+</body>
+</html>
