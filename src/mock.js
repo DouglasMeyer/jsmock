@@ -1,13 +1,16 @@
 /* JSMock
  *
  * Usage:
- *  Math.mock('random', 3/10, 4/10);
- *  Math.random(); => 4/10
- *  Math.random(); => 3/10
+ *  new Mock(Math, 'random', 1); => <mock object>
+ *  Math.mock('random', 2, 3); => <Math object>
+ *  Math.random(); => 3
+ *  Math.random(); => 2
+ *  Math.random(); => 1
  *  Math.random(); => actual random
  *
- *  Math.mock('random', 1, 2);
- *  Mock.clear();
+ *  Math.mock('random', 1, 2); => <Math object>
+ *  Mock.clear(); // to clear all mocks
+ *  // or: Math.random.reset(); // to just clear the Math.random mock
  *  Math.random(); => actual random
  *
  * Copyright (c) 2008 Douglas Meyer
@@ -33,15 +36,6 @@
  */
 
 (function(){
-  var toArray = function(){
-    var newArray=[];
-    for(var argIndex=0, arg; arg=arguments[argIndex]; argIndex++){
-      for(var index=0, obj; obj=arg[index]; index++){
-        newArray.push(obj);
-      }
-    }
-    return(newArray);
-  };
   var Mock = window.Mock = function(target, functionName){
     if (arguments.length > 3) {
       var mocks=[];
@@ -77,14 +71,11 @@
   };
 
   Object.prototype.mock = function(){
-    var argu=[ this ];
+    var args=[ this ];
     for(var index=0, arg;arg=arguments[index];index++){
-      argu.push(arg);
+      args.push(arg);
     }
-    var mock = Mock.apply(null, argu);
-    mock.prototype = Mock.prototype;
+    var mock = Mock.apply(null, args);
     return(this);
-  };
-  Object.prototype.mock.clear = function(){
   };
 })();
