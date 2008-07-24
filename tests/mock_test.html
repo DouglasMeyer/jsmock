@@ -30,9 +30,13 @@
 
     setup: function() { with(this) {
       initialRandom = Math.random;
+      initialRound = Math.round;
+      initialSetTimeout = window.setTimeout;
     }},
 
     teardown: function() { with(this) {
+      window.setTimeout = initialSetTimeout;
+      Math.round = initialRound;
       Math.random = initialRandom;
     }},
 
@@ -79,6 +83,26 @@
       Math.mock('random', function(arg){ return(arg+1); });
 
       assertEqual(101, Math.random(100));
+    }},
+
+    testObjectMockReset_WillClearAllMocksLeavingTheDefaultFunction: function(){with(this){
+      var initialRandom = Math.random;
+      Math.mock('random', 3, 4, 5);
+      Math.mock('random', 6, 7);
+      assertEqual(7, Math.random());
+      Math.random.reset();
+      assertEqual(initialRandom, Math.random);
+    }},
+
+    testMockReset_WillClearAllMocks: function(){with(this){
+      var initialRandom = Math.random, initialSetTimeout = window.setTimeout;
+      Math.mock('random', 3);
+      window.mock('setTimeout', 8);
+
+      Mock.reset();
+
+      assertEqual(initialRandom, Math.random);
+      assertEqual(initialSetTimeout, window.setTimeout);
     }}
 
   }, "testlog");
