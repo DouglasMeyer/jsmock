@@ -103,6 +103,24 @@
 
       assertEqual(initialRandom, Math.random);
       assertEqual(initialSetTimeout, window.setTimeout);
+    }},
+
+    testMockReset_WillNotBlowUpIfMocksHaveBeenCalledOrCleared: function(){with(this){
+      var initialRandom = Math.random, initialRound = Math.round,
+        initialSetTimeout = window.setTimeout;
+      new Mock(Math, 'random', 1,2,3);
+      new Mock(Math, 'round', 4,5,6);
+      new Mock(window, 'setTimeout', 7,8,9);
+      assertEqual(3, Math.random());
+      assertEqual(2, Math.random());
+      assertEqual(1, Math.random());
+      Math.round.reset();
+
+      Mock.reset();
+
+      assertEqual(initialRandom, Math.random);
+      assertEqual(initialRound, Math.round);
+      assertEqual(initialSetTimeout, window.setTimeout);
     }}
 
   }, "testlog");

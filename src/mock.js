@@ -9,7 +9,7 @@
  *  Math.random(); => actual random
  *
  *  Math.mock('random', 1, 2); => <Math object>
- *  Mock.clear(); // to clear all mocks
+ *  Mock.reset(); // to clear all mocks
  *  // or: Math.random.reset(); // to just clear the Math.random mock
  *  Math.random(); => actual random
  *
