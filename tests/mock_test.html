@@ -121,6 +121,29 @@
       assertEqual(initialRandom, Math.random);
       assertEqual(initialRound, Math.round);
       assertEqual(initialSetTimeout, window.setTimeout);
+    }},
+
+    testWindow_AlsoGetsMocked: function(){with(this){
+      assert(window.mock);
+    }},
+
+    testMockNoFootprint_WillRemoveMethodsFromObjects: function(){with(this){
+      Mock.noFootprint();
+      assertEqual(undefined, {}.mock);
+      assertEqual(undefined, (function(){}).mock);
+    }},
+
+    testMockNoFootprint_ReturnsMockObject: function(){with(this){
+      var mockObject = Mock;
+      var returned = Mock.noFootprint();
+      assertEqual(mockObject, returned);
+    }},
+
+    testMockNoFootprintWithArgument_WillRestoreOldMock: function(){with(this){
+      var mockObject = Mock.noFootprint();
+      assertEqual(mockObject, window.Mock);
+      Mock.noFootprint(true);
+      assertEqual(undefined, window.Mock);
     }}
 
   }, "testlog");

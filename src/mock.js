@@ -36,6 +36,9 @@
  */
 
 (function(){
+  var _Mock = window.Mock,
+      window_mock = window.mock,
+      object_mock = Object.prototype.mock;
   var Mock = window.Mock = function(target, functionName){
     if (arguments.length > 3) {
       var mocks=[];
@@ -69,8 +72,16 @@
     }
     this.mocks = [];
   };
+  Mock.noFootprint = function(){
+    Object.prototype.mock = object_mock;
+    window.mock = window_mock;
+    if (arguments.length > 0) {
+      window.Mock = _Mock;
+    }
+    return Mock;
+  };
 
-  Object.prototype.mock = function(){
+  window.mock = Object.prototype.mock = function(){
     var args=[ this ];
     for(var index=0, arg;arg=arguments[index];index++){
       args.push(arg);
