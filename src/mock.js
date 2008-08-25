@@ -1,17 +1,21 @@
 /* JSMock
  *
  * Usage:
- *  new Mock(Math, 'random', 1); => <mock object>
- *  Math.mock('random', 2, 3); => <Math object>
- *  Math.random(); => 3
- *  Math.random(); => 2
- *  Math.random(); => 1
- *  Math.random(); => actual random
+ *  new Mock(Math, 'random', 1);// => <mock object>
+ *  Mock.init(); // You need to init to run mock on objects like below
+ *  Math.mock('random', 2, 3);// => <Math object>
+ *  Math.random();// => 3
+ *  Math.random();// => 2
+ *  Math.random();// => 1
+ *  Math.random();// => actual random
  *
- *  Math.mock('random', 1, 2); => <Math object>
- *  Mock.reset(); // to clear all mocks
+ *  Math.mock('random', 1, 2);// => <Math object>
+ *  Mock.reset();// // to clear all mocks
  *  // or: Math.random.reset(); // to just clear the Math.random mock
- *  Math.random(); => actual random
+ *  Math.random();// => actual random
+ *
+ *  // use this to restore original Mock object (if you had one)
+ *  Mock.noFootprint();// => Mock
  *
  * Copyright (c) 2008 Douglas Meyer
  *
@@ -72,21 +76,21 @@
     }
     this.mocks = [];
   };
+  Mock.init = function(){
+    window.mock = Object.prototype.mock = function(){
+      var args=[ this ];
+      for(var index=0, arg;arg=arguments[index];index++){
+        args.push(arg);
+      }
+      var mock = Mock.apply(null, args);
+      return(this);
+    };
+  };
   Mock.noFootprint = function(){
     Object.prototype.mock = object_mock;
     window.mock = window_mock;
-    if (arguments.length > 0) {
-      window.Mock = _Mock;
-    }
+    window.Mock = _Mock;
     return Mock;
   };
 
-  window.mock = Object.prototype.mock = function(){
-    var args=[ this ];
-    for(var index=0, arg;arg=arguments[index];index++){
-      args.push(arg);
-    }
-    var mock = Mock.apply(null, args);
-    return(this);
-  };
 })();

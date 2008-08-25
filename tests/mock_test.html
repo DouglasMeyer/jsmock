@@ -26,69 +26,63 @@
 <script type="text/javascript" language="javascript" charset="utf-8">
 // <![CDATA[
 
+  var originalMock = window.Mock;
+
   new Test.Unit.Runner({
 
     setup: function() { with(this) {
+      try{ originalMock.noFootprint(true); }catch(e){ window.status += 'noFootprint broke'+e+"|"; }
+      window.Mock = originalMock;
       initialRandom = Math.random;
       initialRound = Math.round;
       initialSetTimeout = window.setTimeout;
     }},
 
     teardown: function() { with(this) {
+      try{ originalMock.reset(); }catch(e){ window.status += 'reset broke'+e+"|" }
       window.setTimeout = initialSetTimeout;
       Math.round = initialRound;
       Math.random = initialRandom;
     }},
 
-    testObjectMock_MakesTheNextCallReturnWhatYouPassed: function() { with(this) {
-      Math.mock('random', 3);
+    testMockObject_MakesTheNextCallReturnWhatYouPassed: function() { with(this) {
+      new Mock(Math, 'random', 3);
 
       assertEqual(3, Math.random());
     }},
 
-    testObjectMock_RemovesMockAfterItIsCalled: function(){with(this){
-      Math.mock('random', 3);
+    testMockObject_RemovesMockAfterItIsCalled: function(){with(this){
+      new Mock(Math, 'random', 3);
 
       Math.random();
       assertEqual(initialRandom, Math.random);
     }},
 
-    testObjectMock_GetsExecutedLikeAStack: function(){with(this){
-      Math.mock('random', 3);
-      Math.mock('random', 4);
+    testMockObject_GetsExecutedLikeAStack: function(){with(this){
+      new Mock(Math, 'random', 3);
+      new Mock(Math, 'random', 4);
 
       assertEqual(4, Math.random());
       assertEqual(3, Math.random());
     }},
 
-    testObjectMockWithMultipleArguments_GetsAddedLikeAStack: function(){with(this){
-      Math.mock('random', 3, 4);
+    testMockObjectWithMultipleArguments_GetsAddedLikeAStack: function(){with(this){
+      new Mock(Math, 'random', 3, 4);
 
       assertEqual(4, Math.random());
       assertEqual(3, Math.random());
     }},
 
-    testObjectMocks_CanBeChained: function(){with(this){
-      var initialRound = Math.round;
-
-      Math.mock('random', 3).mock('round', 4);
-
-      assertEqual(3, Math.random());
-      assertEqual(4, Math.round());
-      assertEqual(initialRandom, Math.random);
-      assertEqual(initialRound, Math.round);
-    }},
-
-    testObjectMock_WillCallFunctionIfFunctionPassed: function(){with(this){
-      Math.mock('random', function(arg){ return(arg+1); });
+    testMockObject_WillCallFunctionIfFunctionPassed: function(){with(this){
+      new Mock(Math, 'random', function(arg){ return(arg+1); });
 
       assertEqual(101, Math.random(100));
     }},
 
-    testObjectMockReset_WillClearAllMocksLeavingTheDefaultFunction: function(){with(this){
+    testMockObjectReset_WillClearAllMocksLeavingTheDefaultFunction: function(){with(this){
       var initialRandom = Math.random;
-      Math.mock('random', 3, 4, 5);
-      Math.mock('random', 6, 7);
+      new Mock(Math, 'random', 3, 4, 5);
+      new Mock(Math, 'random', 6, 7);
       assertEqual(7, Math.random());
       Math.random.reset();
       assertEqual(initialRandom, Math.random);
@@ -96,8 +90,8 @@
 
     testMockReset_WillClearAllMocks: function(){with(this){
       var initialRandom = Math.random, initialSetTimeout = window.setTimeout;
-      Math.mock('random', 3);
-      window.mock('setTimeout', 8);
+      new Mock(Math, 'random', 3);
+      new Mock(window, 'setTimeout', 8);
 
       Mock.reset();
 
@@ -123,27 +117,42 @@
       assertEqual(initialSetTimeout, window.setTimeout);
     }},
 
-    testWindow_AlsoGetsMocked: function(){with(this){
+    testMockInit_MocksWindow: function(){with(this){
+      assertEqual(undefined, window.mock);
+      Mock.init();
       assert(window.mock);
     }},
 
-    testMockNoFootprint_WillRemoveMethodsFromObjects: function(){with(this){
+    testMockInit_MocksObjects: function(){with(this){
+      assertEqual(undefined, Math.mock);
+      Mock.init();
+      Math.mock('random', 1,2,3);
+
+      assertEqual(3, Math.random());
+      assertEqual(2, Math.random());
+    }},
+
+    testObjectMocks_CanBeChained: function(){with(this){
+      Mock.init();
+      var initialRound = Math.round;
+
+      Math.mock('random', 3).mock('round', 4);
+
+      assertEqual(3, Math.random());
+      assertEqual(4, Math.round());
+      assertEqual(initialRandom, Math.random);
+      assertEqual(initialRound, Math.round);
+    }},
+
+    testMockNoFootprint_WillRestoreOldMock: function(){with(this){
       Mock.noFootprint();
-      assertEqual(undefined, {}.mock);
-      assertEqual(undefined, (function(){}).mock);
+      assertEqual(undefined, window.Mock);
     }},
 
     testMockNoFootprint_ReturnsMockObject: function(){with(this){
-      var mockObject = Mock;
+      var mockObject = window.Mock;
       var returned = Mock.noFootprint();
       assertEqual(mockObject, returned);
-    }},
-
-    testMockNoFootprintWithArgument_WillRestoreOldMock: function(){with(this){
-      var mockObject = Mock.noFootprint();
-      assertEqual(mockObject, window.Mock);
-      Mock.noFootprint(true);
-      assertEqual(undefined, window.Mock);
     }}
 
   }, "testlog");
